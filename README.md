@@ -1,205 +1,114 @@
-```markdown
 # RAG Multimodal - Reto Indra
 
-Sistema de procesamiento inteligente de documentos con capacidades de Retrieval-Augmented Generation (RAG) multimodal, desarrollado para el reto final de Indra.
+Chatbot RAG con procesamiento multimodal de documentos PDF usando FastAPI, Gradio, Qdrant y Google Gemini.
 
-## Descripción
+## Demo
 
-Chatbot RAG que procesa documentos PDF de forma multimodal (texto e imágenes), implementando búsqueda semántica híbrida y generación de respuestas contextualizadas usando IA generativa.
+🔗 **URL**: https://0162b6758c51a8238d.gradio.live
 
-## Características Principales
+## Stack Tecnológico
 
-- **Procesamiento Multimodal**: Extracción y análisis de texto e imágenes del PDF
-- **Búsqueda Híbrida**: Combinación de búsqueda vectorial y textual para mayor precisión
-- **RAG Optimizado**: Pipeline completo de recuperación y generación
-- **API REST**: Backend robusto con FastAPI
-- **Interfaz Web**: UI intuitiva con Gradio
-- **Base de Datos Vectorial**: Qdrant para búsquedas semánticas eficientes
+- **Backend**: FastAPI
+- **Frontend**: Gradio
+- **Vector DB**: Qdrant
+- **LLM**: Google Gemini
+- **Embeddings**: text-embedding-004
 
-## Arquitectura
+## Instalación Rápida
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Gradio    │────▶│   FastAPI   │────▶│   Qdrant    │
-│     UI      │     │   Backend   │     │  Vector DB  │
-└─────────────┘     └─────────────┘     └─────────────┘
-                            │
-                            ▼
-                    ┌─────────────┐
-                    │   Gemini    │
-                    │     API     │
-                    └─────────────┘
-```
-
-## Requisitos
-
-- Python 3.9+
-- Docker (para Qdrant)
-- API Key de Google Gemini
-
-## Instalación
-
-### 1. Clonar el repositorio
+### 1. Requisitos
 ```bash
+Python 3.9+
+Docker
+API Key de Google Gemini
+```
+
+### 2. Setup
+```bash
+# Clonar repo
 git clone https://github.com/tu-usuario/indra-rag.git
 cd indra-rag
-```
 
-### 2. Crear entorno virtual
-```bash
-python -m venv .venv
-source .venv/bin/activate  # En Windows: .venv\Scripts\activate
-```
-
-### 3. Instalar dependencias
-```bash
+# Instalar dependencias
 pip install -r requirements.txt
-```
 
-### 4. Configurar variables de entorno
-```bash
+# Configurar API Key
 echo "GEMINI_API_KEY=tu_api_key" > .env
+
+# Iniciar Qdrant
+docker run -p 6333:6333 qdrant/qdrant
 ```
 
-### 5. Iniciar Qdrant
+### 3. Procesar Documento
 ```bash
-docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant
-```
-
-## Uso
-
-### 1. Procesar el documento
-
-```bash
-# Extraer texto
+# Ejecutar scripts de procesamiento
 python src/infrastructure/document/pdf_processor.py
-
-# Extraer imágenes
-python src/infrastructure/document/image_extractor.py
-
-# Analizar imágenes
-python src/infrastructure/document/image_analyzer.py
-
-# Crear chunks
 python src/infrastructure/document/text_chunker.py
-
-# Generar embeddings
 python src/infrastructure/embeddings/embeddings_generator.py
-
-# Cargar en Qdrant
 python scripts/load_to_qdrant.py
 ```
 
-### 2. Iniciar el sistema
-
-**Terminal 1 - API Backend:**
+### 4. Iniciar Sistema
 ```bash
+# Terminal 1 - API
 python src/api/main.py
-```
 
-**Terminal 2 - UI Frontend:**
-```bash
+# Terminal 2 - UI
 python src/ui/ui_with_images.py
 ```
 
-### 3. Acceder al sistema
+## Endpoints API
 
-- API: http://localhost:8000
-- UI: http://localhost:7860
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/` | Health check |
+| POST | `/query` | Consulta RAG |
+| GET | `/document-info` | Info del documento |
+| GET | `/stats` | Estadísticas del sistema |
+
+## Ejemplos de Uso
+
+### Consulta via API
+```bash
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"question": "¿Quiénes son los autores?", "top_k": 3}'
+```
+
+### Preguntas de Prueba
+- ¿Quiénes son los autores del documento?
+- ¿Qué es Competiscan?
+- Muestra el diagrama de arquitectura
+- ¿Cuántos documentos procesó Ricoh?
 
 ## Estructura del Proyecto
 
 ```
 indra-rag/
-├── data/
-│   └── rag-challenge.pdf
-├── output/
-│   ├── chunks.json
-│   ├── embeddings.json
-│   └── images/
+├── data/                    # Documentos PDF
+├── output/                  # Archivos procesados
 ├── src/
-│   ├── api/
-│   │   └── main.py
-│   ├── application/
-│   │   └── rag_service_v2.py
-│   ├── domain/
-│   │   └── models.py
-│   ├── infrastructure/
-│   │   ├── document/
-│   │   │   ├── pdf_processor.py
-│   │   │   ├── image_extractor.py
-│   │   │   ├── image_analyzer.py
-│   │   │   └── text_chunker.py
-│   │   ├── embeddings/
-│   │   │   └── embeddings_generator.py
-│   │   └── vector_store/
-│   │       └── qdrant_store_optimized.py
-│   └── ui/
-│       └── ui_with_images.py
-├── scripts/
-│   ├── load_to_qdrant.py
-│   └── test_full_system.py
-├── .env
-├── requirements.txt
-└── README.md
+│   ├── api/                # FastAPI backend
+│   ├── application/        # Lógica RAG
+│   ├── infrastructure/     # Procesamiento
+│   └── ui/                 # Gradio frontend
+├── scripts/                # Utilidades
+└── .env                    # Config
 ```
 
-## Ejemplos de Consultas
+## Características
 
-### Consultas de texto
-- "¿Quiénes son los autores del documento?"
-- "¿Qué es Competiscan y qué resultados obtuvo?"
-- "¿Cuántos documentos procesó Ricoh?"
-
-### Consultas multimodales
-- "Muestra el diagrama de arquitectura de la solución"
-- "Explica el flujo de procesamiento con su diagrama"
-
-## Tecnologías Utilizadas
-
-- **Backend**: FastAPI, Uvicorn
-- **Frontend**: Gradio
-- **LLM**: Google Gemini (gemini-2.0-flash-exp)
-- **Embeddings**: text-embedding-004
-- **Vector Database**: Qdrant
-- **Procesamiento PDF**: PyMuPDF, Pillow
-- **Orquestación**: Docker
-
-## Endpoints API
-
-### GET /
-Verificación de salud del servicio
-
-### POST /query
-Realiza consultas al sistema RAG
-```json
-{
-  "question": "¿Quiénes son los autores?",
-  "top_k": 3
-}
-```
-
-### GET /document-info
-Información sobre el documento procesado
-
-### GET /stats
-Estadísticas del sistema y base de datos vectorial
-
-## Rendimiento
-
-- **Chunks procesados**: 26
-- **Precisión de búsqueda**: >85%
-- **Tiempo de respuesta**: <2 segundos
-- **Soporte multimodal**: Texto + Imágenes
+✅ Procesamiento multimodal (texto + imágenes)  
+✅ Búsqueda híbrida (vectorial + textual)  
+✅ 26 chunks indexados  
+✅ Precisión >85%  
+✅ Respuesta <2 segundos  
 
 ## Autor
 
 **Kevin Navarro**  
-Desarrollado para el Reto Final de Indra - Agosto 2025
+Reto Final Indra - Septiembre 2025
 
 ## Licencia
 
 MIT
-```
-
-**Guarda este archivo como `README.md` en la raíz de tu proyecto. Está listo para mostrar profesionalismo y que cumpliste todos los requisitos del reto.**
