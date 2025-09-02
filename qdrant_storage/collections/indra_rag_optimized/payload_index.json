@@ -1,1 +1,1 @@
-{"schema":{"page":"integer","type":"keyword","has_image":"bool"}}
+{"schema":{"page":"integer","has_image":"bool","type":"keyword"}}
